@@ -17,6 +17,10 @@ module.exports.createUser = async (req, res) => {
         if(existingUser) {
             return res.status(400).json({message: "Email này đã tồn tại!"})
         }
+        const checkPhone = await User.findOne({phone: req.body.user.phone});
+        if(checkPhone) {
+            return res.status(400).json({message: "Số điện thoại này đã được đăng ký!"})
+        }
         const img = `https://ui-avatars.com/api/?background=ff324d&color=fff&name=+${req.body.user.fullName}`
         const passwords = await hashPassword(req.body.user.password);
         const newUser =  new User({
