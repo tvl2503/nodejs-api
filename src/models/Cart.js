@@ -9,7 +9,8 @@ const CartSchema = new mongoose.Schema(
           size: {type: String, require: true},
           price: { type: Number, require: true},
           img: { type: String, require: true},
-          name: { type: String, require: true}
+          name: { type: String, require: true},
+          percentReduce: {type : Number, require: true, default: 0}
         },
       ],
       total: {type: Number, default : 0}

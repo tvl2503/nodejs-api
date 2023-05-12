@@ -5,6 +5,9 @@ const cors = require("cors");
 const authRoute = require("./routes/user");
 const productRoute = require("./routes/product")
 const categoryRoute = require("./routes/category")
+const UploadRoute = require("./routes/upload")
+const CheckoutRoute = require("./routes/checkout")
+const OrderRoute = require("./routes/order")
 const cartRoute = require("./routes/cart")
 const bp = require('body-parser')
 const app = express()
@@ -26,6 +29,9 @@ app.use("/api/auth", authRoute);
 app.use("/api/product", productRoute);
 app.use("/api/category", categoryRoute);
 app.use("/api/cart", cartRoute);
+app.use("/api/upload", UploadRoute);
+app.use("/api/checkout", CheckoutRoute);
+app.use("/api/order", OrderRoute);
 
 
 app.listen(PORT, () => {console.log("Server da chay");})

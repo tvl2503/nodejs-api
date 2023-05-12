@@ -2,7 +2,7 @@ const Cart = require("../models/Cart")
 const User = require("../models/User")
 
 module.exports.addToCart = async (req, res) => {
-    const userId = req.user.id
+    const userId = req.user._id
   const user = await User.findOne({_id: userId})
   if(!user) {
     res.status(500).send("Nguời dùng không tồn tại");
@@ -15,6 +15,7 @@ module.exports.addToCart = async (req, res) => {
         const img = req.body.products.img
         const name = req.body.products.name
         const size = req.body.products.size
+        const percentReduce = req.body.products.percentReduce
         let userCart = await Cart.findOne({userId: userId})
     
         if (userCart) {
@@ -26,14 +27,15 @@ module.exports.addToCart = async (req, res) => {
            
             let productItem = userCart.products[itemIndex];
             productItem.quantity += quantity
+            productItem.percentReduce = percentReduce
             userCart.products[itemIndex] = productItem
           }
           else {
-            userCart.products.push({ productId, price, quantity, img, name, size })
+            userCart.products.push({ productId, price, quantity, img, name, size, percentReduce })
           }
           let total = 0;
           for(let i = 0; i < userCart.products.length; i++){
-            total += userCart.products[i].price * userCart.products[i].quantity
+            total += userCart.products[i].price * userCart.products[i].quantity*(1 - userCart.products[i].percentReduce/100)
           }
           
           userCart.total = total 
@@ -41,7 +43,7 @@ module.exports.addToCart = async (req, res) => {
           return res.status(201).json(userCart);
         }
         else {
-          let total = parseInt(req.body.products.price * req.body.products.quantity)
+          let total = parseInt(req.body.products.price * req.body.products.quantity*(1 - percentReduce/100))
           const newCart = await Cart.create({
             userId,
             products: [req.body.products],
@@ -56,7 +58,7 @@ module.exports.addToCart = async (req, res) => {
   }
 } 
 module.exports.getToCartByUser = async (req,res) =>{
-    const userId = req.user.id
+    const userId = req.user._id
     try{
       const user = await Cart.findOne({userId: userId})
         return res.status(201).json(user)
@@ -69,7 +71,7 @@ module.exports.getToCartByUser = async (req,res) =>{
 }
 module.exports.updateCartByUser = async (req, res) => {
   try{
-    const userId = req.user.id
+    const userId = req.user._id
     let userCart = await Cart.findOne({userId: userId})
     if(userCart){
       const itemIndex =  userCart.products.findIndex(item =>{
@@ -94,7 +96,7 @@ module.exports.updateCartByUser = async (req, res) => {
       }
       let total = 0;
         for(let i = 0; i < userCart.products.length; i++){
-          total += userCart.products[i].price * userCart.products[i].quantity
+          total += userCart.products[i].price * userCart.products[i].quantity*(1 - userCart.products[i].percentReduce/100)
         }
         userCart.total = total 
         if(userCart.total === 0){
